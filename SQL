@@ -1,0 +1,35 @@
+var server = '104.128.57.146';
+var port = 3306;
+var dbName = 'xxxxxxx';
+var username = 'xxxxxxx';
+var password = 'xxxxxxx';
+var url = 'jdbc:mysql://'+server+':'+port+'/'+dbName;
+                              
+function getData() {
+  var conn = Jdbc.getConnection(url, username, password);
+  var stmt = conn.createStatement();
+  var results = stmt.executeQuery('SELECT * FROM cache');
+  var metaData=results.getMetaData();
+  var numCols = metaData.getColumnCount();
+  var spreadsheet = SpreadsheetApp.getActive();
+  var sheet = spreadsheet.getSheetByName('Sheet5');
+  var arr=[];
+
+  for (var col = 0; col < numCols; col++) {
+    arr.push(metaData.getColumnName(col + 1));
+  }
+
+  sheet.appendRow(arr);
+
+while (results.afterLast[0]) {
+  arr=[];
+  for (var col = 0; col < numCols; col++) {
+    arr.push(results.getString(col + 1));
+  }
+  sheet.appendRow(arr);
+}
+
+results.close();
+stmt.close();
+sheet.autoResizeColumns(1, numCols+1);
+}
